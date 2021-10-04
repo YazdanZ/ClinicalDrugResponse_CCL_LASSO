@@ -58,9 +58,78 @@ UMAP and t-SNE visualizations could have significantly changed based on the choi
 \end{figure}
 
 \section*{Clustering}
- \section*{Regression}
- \section*{Conclusion}
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering Silhouette plot]{{\includegraphics[width = 0.45\textwidth]{silhouette_plot_kmeans.png} }}%
+    \quad
+    \subfloat[\centering Knee plot]{{\includegraphics[width = 0.35\textwidth]{knee_plot_kmeans.png} }}
+    \caption{K-means clustering exploration plots}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering PCA]{{\includegraphics[width = 0.305\textwidth]{kmeans_PCA.png} }}%
+    \quad
+    \subfloat[\centering t-SNE]{{\includegraphics[width = 0.305\textwidth]{kmeans_tSNE.png} }}
+    \quad
+    \subfloat[\centering UMAP]{{\includegraphics[width = 0.305\textwidth]{kmeans_UMAP.png} }}%
+    \caption{Two-dimensional visualization of the dataset clustered using k-means}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering Silhouette plot]{{\includegraphics[width = 0.45\textwidth]{silhouette_plot_agglo.png} }}%
+    \quad
+    \subfloat[\centering Dendrogram]{{\includegraphics[width = 0.45\textwidth]{dendrogram_agglo.png} }}
+    \caption{agglomerative clustering exploration plots}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering PCA]{{\includegraphics[width = 0.305\textwidth]{agglo_PCA.png} }}%
+    \quad
+    \subfloat[\centering t-SNE]{{\includegraphics[width = 0.305\textwidth]{agglo_tSNE.png} }}
+    \quad
+    \subfloat[\centering UMAP]{{\includegraphics[width = 0.305\textwidth]{agglo_UMAP.png} }}%
+    \caption{\centering Two-dimensional visualization of the dataset clustered using agglomerative clustering}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering kmeans/agglomerative clustering with default parameters]{{\includegraphics[width = 0.32\textwidth]{jaccard1.png} }}%
+    \quad
+    \subfloat[\centering kmeans/agglomerative clustering with average linkage and euclidean affinity]{{\includegraphics[width = 0.32\textwidth]{jaccard2.png} }}
+    \quad
+    \subfloat[\centering kmeans/agglomerative clustering with average linkage and cosine affinity]{{\includegraphics[width = 0.32\textwidth]{jaccard3.png} }}%
+    \caption{\centering Jaccard similarity table - rows correspond to clusters formed using k-means and columns
+    using agglomerative clustering}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{agglo2.png}
+    \caption{\centering Two-dimensional visualization of the dataset clustered using agglomerative clustering with average linkage and euclidean affinity. \newline From left to right: PCA, t-SNE, UMAP.}
+\end{figure}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{agglo3.png}
+    \caption{\centering Two-dimensional visualization of the dataset clustered using agglomerative clustering with average linkage and cosine affinity. \newline From left to right: PCA, t-SNE, UMAP.}
+\end{figure}
+\clearpage
+
+ \section*{Regression}
+
+ In this step, we use linear and lasso regression to predict the clinical drug response based on gene expression profiles from the GDSC dataset. We are provided with a drug response file. This CSV file contains the response of cell lines to 23 different drugs. The rows contain drugs, and the columns represent cell lines. The drug we are interested in predicting the response of is Doxorubicin. Doxorubicin is a chemotherapy medication used in the treatment of different kinds of cancer \cite{drugs.com}. \\
+ 
+ Before performing regression, we match the gene expression file to the drug responses. For this, we transpose the drug responses so each row corresponds to a cell line. Moreover, we remove any sample for which no response to Doxorubicin is recorded. This alone removes 107 cells lines and works against us due to the curse of dimensionality. Performing a regression using linear regression gives us an $r^{2}$ regression score of 1 on the training data, but an $r^{2}$ score close to zero on the test set. 
+ This clearly shows that linear regression overfits the data. To combat this issue, we perform a regularized regression using Lasso. 
+ We will penalize the features in the model to only keep the most important ones. This penalization is controlled using the $\alpha$ hyperparameter. We perform Lasso regression using values of $\alpha$ from 0.1 to 1 in increments of 0.2 and plot the number of selected features. This plot can be seen in Figure 10. 
+ We can see that an $\alpha$ of 0.1 limits the features to 195m and the number of features decreases as $\alpha$ increases. The number of features is limited to only one with $\alpha$ larger or equal to 0.7. 
+ \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{alpha_vs_nfeatures.png}
+    \caption{\centering Number of selected features by LASSO vs. the value of the $\alpha$ hyperparameter}
+\end{figure}
+
+Next, we perform nested cross-validation to tune the $\alpha$ hyperparameter and to estimate the model's generalization error. When performing cross-validation in a non-nested manner on the data for tunning and evaluating the model, data leakage might occur depending on the dataset, biasing the model. As a result, the model evaluation will be optimistic and biased. In nested cross-validation, we have an outer loop we use for assessing the model's performance and an inner loop for parameter selection. We perform 4-fold cross-validation on the outer loop and 3-fold cross-validation for the inner loop. This means that for each iteration of the outer loop, the outer training set is further split into 3 folds. We perform grid search with a mean squared error as score in the inner loop over $\alpha$ values from 0.02 to 1 with intervals of 0.01. We found that the best value of $\alpha$ was in the range of 0.2 to 0.3. From MSE scores reported in the outer loop, an $\alpha$ of 0.21 reported an MSE of 2.33. Using this an $\alpha$ of 0.21 resulted in a spearman correlation of 0.38. Note that we performed the nested cross-validation using MSE in the inner loop as the score and the score reported for spearman correlation does not come from the nested cross-validation. However, it is possible to repeat the same procedure for nested cross-validation replacing using spearman correlation as score. This wasn't done due to computational limitations. 
+
+ \section*{Conclusion}
  \bibliographystyle{unsrt}
  \bibliography{refs}
 
