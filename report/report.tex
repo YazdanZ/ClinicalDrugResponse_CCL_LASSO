@@ -4,8 +4,9 @@
  \usepackage{graphicx}
  \usepackage{multirow}
  \usepackage{subfig}
+ \usepackage{float}
 
- \geometry{letterpaper, margin=1.2in}
+ \geometry{letterpaper, margin=1in}
  \graphicspath{ {./images/}  }
 
  \title{Clinical drug response prediction using Lasso\\ \large{ECSE 556 - Machine Learning in Network Biology} \\ \large{Homework 1}}
@@ -58,13 +59,23 @@ UMAP and t-SNE visualizations could have significantly changed based on the choi
 \end{figure}
 
 \section*{Clustering}
+In this section, we perform clustering using k-means and agglomerative clustering. To find the optimal number of clusters in k-means, we plot the average silhouette plot and use the elbow/knee method on the knee plot. The silhouette plot determined how well each object lies within its cluster. We can see from Figure 3 (a) and Figure 4 (a) that 3 clusters maximize the silhouette value in both k-means and agglomerative clustering (ward linkage and euclidean affinity). Continuing with the exploration of k-means and agglomerative clustering, we visualize the elbow plot by fitting the k-means models on a range of k and plotting the SSE (Error Sum of Squares). We can identify the elbow from Figure 3 (b) at 4 clusters. This means that adding more clusters than 4 can make clusters hard to separate. We also plot the dendrogram for agglomerative clustering in Figure 4 (b). As seen in the previous section about dimensionality reduction, we can identify one cluster greatly distanced from the other two as it is separated from the other two at a greater height.  
 \begin{figure}[h]
     \centering
-    \subfloat[\centering Silhouette plot]{{\includegraphics[width = 0.45\textwidth]{silhouette_plot_kmeans.png} }}%
+    \subfloat[\centering Average silhouette plot]{{\includegraphics[width = 0.45\textwidth]{silhouette_plot_kmeans.png} }}%
     \quad
-    \subfloat[\centering Knee plot]{{\includegraphics[width = 0.35\textwidth]{knee_plot_kmeans.png} }}
+    \subfloat[\centering Knee plot]{{\includegraphics[width = 0.3\textwidth]{knee_plot_kmeans.png} }}
     \caption{K-means clustering exploration plots}
 \end{figure}
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering Average silhouette plot]{{\includegraphics[width = 0.45\textwidth]{silhouette_plot_agglo.png} }}%
+    \quad
+    \subfloat[\centering Dendrogram]{{\includegraphics[width = 0.45\textwidth]{dendrogram_agglo.png} }}
+    \caption{agglomerative clustering exploration plots}
+\end{figure}
+\\
+We use k-means and agglomerative clustering with ward linkage and euclidean affinity to cluster the cell lines into 4 clusters. Wile k-means took 3.8 seconds to cluster the data, this was done in 18.5 seconds using agglomerative clustering. Agglomerative clustering has a polynomial time complexity while k-means has linear time complexity. Formed clusters using both methods are visualized in two dimensions using dimensionality reduction techniques applied in the previous section in Figures 5 and 6. We can see that from two-dimensional visualizations the clusters formed are similar except for a few data points. To quantify this similarity, we for a 3 $\times$ 3 table showing the concordance between each cluster formed using k-means and agglomerative clustering. For this purpose, we use Jaccard similarity which is the ratio of intersection over union of two clusters. From the formed Jaccard table in Figure 7 (a), we can see high concordance between the same clusters inferred from both methods as the table diagonal values are close to 1. 
 \begin{figure}[h]
     \centering
     \subfloat[\centering PCA]{{\includegraphics[width = 0.305\textwidth]{kmeans_PCA.png} }}%
@@ -76,13 +87,6 @@ UMAP and t-SNE visualizations could have significantly changed based on the choi
 \end{figure}
 \begin{figure}[h]
     \centering
-    \subfloat[\centering Silhouette plot]{{\includegraphics[width = 0.45\textwidth]{silhouette_plot_agglo.png} }}%
-    \quad
-    \subfloat[\centering Dendrogram]{{\includegraphics[width = 0.45\textwidth]{dendrogram_agglo.png} }}
-    \caption{agglomerative clustering exploration plots}
-\end{figure}
-\begin{figure}[h]
-    \centering
     \subfloat[\centering PCA]{{\includegraphics[width = 0.305\textwidth]{agglo_PCA.png} }}%
     \quad
     \subfloat[\centering t-SNE]{{\includegraphics[width = 0.305\textwidth]{agglo_tSNE.png} }}
@@ -90,6 +94,8 @@ UMAP and t-SNE visualizations could have significantly changed based on the choi
     \subfloat[\centering UMAP]{{\includegraphics[width = 0.305\textwidth]{agglo_UMAP.png} }}%
     \caption{\centering Two-dimensional visualization of the dataset clustered using agglomerative clustering}
 \end{figure}
+\\
+We once again perform agglomerative clustering but with average linkage, one using euclidean and once with cosine affinity measure. The resulting 2d plots are available in Figures 8 and 9. Unlike ward linkage that minimizes the variance of clusters being merged, average linkage uses the average of each observation of the two sets. We can see that agglomerative clustering using average linkage and euclidean affinity mainly created one cluster. This can also be seen from the Jaccard similarity table compared to the clusters previously formed by k-means as all cells in the table except for the cell corresponding to the second cluster in both methods are close to zero. Agglomerative clustering using cosine affinity also outputs very different results. In contrary to agglomerative clustering with average linkage and euclidean affinity, cosine affinity produces three clusters each with many data points. However, the Jaccard table compared to clusters formed by k-mean shows low concordance on half of the cells and a score close to 0.5 on the other half. 
 \begin{figure}[h]
     \centering
     \subfloat[\centering kmeans/agglomerative clustering with default parameters]{{\includegraphics[width = 0.32\textwidth]{jaccard1.png} }}%
@@ -100,18 +106,17 @@ UMAP and t-SNE visualizations could have significantly changed based on the choi
     \caption{\centering Jaccard similarity table - rows correspond to clusters formed using k-means and columns
     using agglomerative clustering}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{agglo2.png}
     \caption{\centering Two-dimensional visualization of the dataset clustered using agglomerative clustering with average linkage and euclidean affinity. \newline From left to right: PCA, t-SNE, UMAP.}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{agglo3.png}
     \caption{\centering Two-dimensional visualization of the dataset clustered using agglomerative clustering with average linkage and cosine affinity. \newline From left to right: PCA, t-SNE, UMAP.}
 \end{figure}
-\clearpage
 
  \section*{Regression}
 
@@ -130,6 +135,7 @@ UMAP and t-SNE visualizations could have significantly changed based on the choi
 Next, we perform nested cross-validation to tune the $\alpha$ hyperparameter and to estimate the model's generalization error. When performing cross-validation in a non-nested manner on the data for tunning and evaluating the model, data leakage might occur depending on the dataset, biasing the model. As a result, the model evaluation will be optimistic and biased. In nested cross-validation, we have an outer loop we use for assessing the model's performance and an inner loop for parameter selection. We perform 4-fold cross-validation on the outer loop and 3-fold cross-validation for the inner loop. This means that for each iteration of the outer loop, the outer training set is further split into 3 folds. We perform grid search with a mean squared error as score in the inner loop over $\alpha$ values from 0.02 to 1 with intervals of 0.01. We found that the best value of $\alpha$ was in the range of 0.2 to 0.3. From MSE scores reported in the outer loop, an $\alpha$ of 0.21 reported an MSE of 2.33. Using this an $\alpha$ of 0.21 resulted in a spearman correlation of 0.38. Note that we performed the nested cross-validation using MSE in the inner loop as the score and the score reported for spearman correlation does not come from the nested cross-validation. However, it is possible to repeat the same procedure for nested cross-validation replacing using spearman correlation as score. This wasn't done due to computational limitations. 
 
  \section*{Conclusion}
+ To conclude, we performed a variety of studies on the transcriptomic dataset obtained from GDSC. We first performed dimensionality reduction using PCA, t-SNE, and UMAP and compared them together. We the used k-means and agglomerative clustering with different configurations and studies the concordance between formed clusters using each method. Finally, we used Lasso regression for drug response prediction of cancer cell lines. The latter was a challenging task due to the high dimensionality of the data and a lack of samples. This method has many limitations as it can not directly be applied to combination treatment. Furthermore, as we used preclinical samples in our predictions, the clinical drug response of real patients can be different. There are many areas of improvement and future directions. For example, it is possible to incorporate information about tissue type of CCLs to improve predictions either by using a labelled dataset or by clustering CCLs.
  \bibliographystyle{unsrt}
  \bibliography{refs}
 
